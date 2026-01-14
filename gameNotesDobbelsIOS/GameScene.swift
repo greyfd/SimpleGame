@@ -22,7 +22,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var scoreLabel: SKLabelNode!
     
+    var removedItems: [SKNode] = []
     
+    var vc: GameViewController!
     //ONCE
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
@@ -58,15 +60,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         checkContact(nodeName: "coin") { [self] coin in
             score += 1
             scoreLabel.text = "Score: \(score)"
+            removedItems.append(coin)
             coin.removeFromParent()
         }
         
         checkContact(nodeName: "spike") { [self] spike in
-            let action = SKAction.run {
-                self.player.position = CGPoint(x: 0, y: 0)
-            }
-                
-            player.run(action)
+            die()
         }
         
         
@@ -81,7 +80,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func die() {
+        let action = SKAction.run {
+            self.player.position = CGPoint(x: 0, y: 0)
+        }
         
+        for node in removedItems {
+            self.addChild(node)
+        }
+            
+        player.run(action)
     }
     
     

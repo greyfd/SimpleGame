@@ -11,10 +11,20 @@ import GameplayKit
 
 class GameViewController: UIViewController {
     
-    let button: UIButton = {
+    let screenSize: CGRect = UIScreen.main.bounds
+
+    
+    var button: UIButton = {
         let button = UIButton(type: .system)
-        
+        button.setTitle("Respawn", for: .application)
+        button.setImage(UIImage(systemName: "arrow.trianglehead.clockwise"), for: .application)
         return button
+    }()
+    
+    var frame: UIView {
+        let frame = UIView(frame: screenSize)
+        frame.backgroundColor = .systemRed
+        return frame
     }
     
     var scene2: GameScene?
@@ -30,9 +40,12 @@ class GameViewController: UIViewController {
                 scene.scaleMode = .aspectFill
     
                 scene2 = scene as? GameScene
+                scene2!.vc = self
                 // Present the scene
                 view.presentScene(scene)
             }
+            
+            
             
             view.ignoresSiblingOrder = true
             
