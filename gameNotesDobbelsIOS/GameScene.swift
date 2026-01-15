@@ -24,6 +24,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var removedItems: [SKNode] = []
     
+    var canJump = true;
+    
     var vc: GameViewController!
     //ONCE
     override func didMove(to view: SKView) {
@@ -61,7 +63,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             score += 1
             scoreLabel.text = "Score: \(score)"
             removedItems.append(coin)
-            coin.removeFromParent()
+            removedItems.last!.removeFromParent()
+        }
+        
+        
+        checkContact(nodeName: "ground") { [self] ground in
+            print("touch gorund")
+            canJump = true;
+            vc.jumpButton.isEnabled = true
         }
         
         checkContact(nodeName: "spike") { [self] spike in
@@ -79,16 +88,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func didEnd(_ contact: SKPhysicsContact) {
+        
+        checkContact(nodeName: "ground") { [self] ground in
+            print("end touch gorund")
+            canJump = false;
+            vc.jumpButton.isEnabled = false
+        }
+        
+        
+        
+        
+        
+        func checkContact(nodeName: String, action: ((SKNode) -> Void)?) {
+            if((contact.bodyA.node?.name == nodeName || contact.bodyB.node?.name == nodeName) && (contact.bodyA.node?.name == "player" || contact.bodyB.node?.name == "player")) {
+                
+                let node = contact.bodyA.node?.name == nodeName ? contact.bodyA.node : contact.bodyB.node
+
+                action?(node!)
+            }
+        }
+    }
+    
     func die() {
+        
         let action = SKAction.run {
             self.player.position = CGPoint(x: 0, y: 0)
         }
+            
+        player.run(action)
         
         for node in removedItems {
             self.addChild(node)
         }
-            
-        player.run(action)
+    }
+    
+    func jump() {
+        if(canJump) {
+            print("jump")
+            let action = SKAction.run {
+                self.player.physicsBody?.velocity.dy = 750
+            }
+            player.run(action)
+
+        }
     }
     
     
