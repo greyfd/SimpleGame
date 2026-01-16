@@ -26,12 +26,6 @@ class GameViewController: UIViewController {
     
     
     
-    var frame: UIView {
-        let frame = UIView(frame: screenSize)
-        frame.backgroundColor = .systemRed
-        return frame
-    }
-    
     var scene2: GameScene?
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,7 +50,7 @@ class GameViewController: UIViewController {
                     let yPos = screenSize.height - 120
                     
                     button.center = CGPoint(x: xPos, y: yPos)
-                let buttonAction = UIAction(handler: { [self]_ in
+                let buttonAction = UIAction(handler: { [self] _ in
                     scene2?.jump()
                 })
                 button.addAction(buttonAction, for: .touchUpInside)
