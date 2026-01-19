@@ -25,13 +25,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var caveNodes: [SKSpriteNode] = []
     
     var vc: GameViewController!
+    
+    var jumps = 0
     //ONCE
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
         self.camera = cam
         player = (self.childNode(withName: "player") as! SKSpriteNode)
-        player.physicsBody?.velocity.dx = 5;
+        player.physicsBody = .init(rectangleOf: CGSize(width: 75, height: 75))
+        player.size = CGSize(width: 75, height: 75)
+        player.physicsBody?.allowsRotation = false
         scoreLabel = (self.childNode(withName: "scoreLabel") as! SKLabelNode)
+        scoreLabel.zPosition = 999
 //
 //        for i in 0...50 {
 //            let node = SKSpriteNode(color: .red, size: CGSize(width: 171, height: 167))
@@ -55,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 } else if (y == 0 || y == 100) {
                     createCaveNode(x: x, y: y, addToList: true)
                     continue;
-                } else if ((x == 1 && y == 1) || (x == 1 && y == 2) || (x == 2 && y == 1)) {
+                } else if (x < 5 && y < 5) {
                     continue;
                 }
                 if Int.random(in: 0...100) > 60 {
@@ -69,6 +74,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             var neighborCount = 0
             
             if(postion.x == 0 || postion.x == 100 * 100 || postion.y == 0 || postion.y == 100 * 100) {
+                continue
+            }
+            
+            if((postion.y == 0 || postion.y == 100 || postion.y == 200) && postion.x > 500) {
                 continue
             }
             
@@ -101,8 +110,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             if(neighborCount < 4) {
-                caveNodes.re(node)
                 node.removeFromParent()
+                let random = Int.random(in: 0...200)
+                if random > 190 {
+                    let node = SKSpriteNode(color: .systemGreen, size: CGSize(width: 100, height: 100))
+                    node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+                    node.physicsBody?.contactTestBitMask = 2
+                    node.physicsBody?.pinned = true
+                    node.physicsBody?.allowsRotation = false
+                    node.physicsBody?.categoryBitMask = 2
+                    node.name = "coin"
+                    node.texture = SKTexture(imageNamed:"tile112")
+                    node.texture!.filteringMode = .nearest
+                    node.position = postion
+                    self.addChild(node)
+                } else if random < 10 {
+                    let node = SKSpriteNode(color: .systemGreen, size: CGSize(width: 100, height: 100))
+                    node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+                    node.physicsBody?.contactTestBitMask = 2
+                    node.physicsBody?.pinned = true
+                    node.physicsBody?.allowsRotation = false
+                    node.physicsBody?.categoryBitMask = 2
+                    node.name = "spike"
+                    node.texture = SKTexture(imageNamed:"tile074")
+                    node.texture!.filteringMode = .nearest
+                    node.position = postion
+                    self.addChild(node)
+                } else {
+                    let index = caveNodes.firstIndex(of: node)!
+                    caveNodes.remove(at: index)
+                }
+
             }
             
             
@@ -122,10 +160,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.position.x = player.position.x + 500
         cam.position.y = player.position.y
         scoreLabel.position = CGPoint(x: cam.position.x + 500, y: cam.position.y + 150)
-        
-        if(player.physicsBody!.velocity.dx <= CGFloat(500)) {
-            player.physicsBody?.velocity.dx += 1;
-        }
     }
     
     //Listening for Contact
@@ -144,6 +178,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("touch gorund")
             canJump = true;
             vc.jumpButton.isEnabled = true
+            jumps = 0
         }
         
         checkContact(nodeName: "spike") { [self] spike in
@@ -166,7 +201,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         checkContact(nodeName: "ground") { [self] ground in
             print("end touch gorund")
             canJump = false;
-//            vc.jumpButton.isEnabled = false
         }
         
         
@@ -196,17 +230,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         removedItems.removeAll()
+        score = 0;
+        
+        scoreLabel.text = "Score: \(score)"
     }
     
     func jump() {
-//        if(canJump) {
+        if(canJump || jumps < 2) {
             print("jump")
+            jumps += 1;
             let action = SKAction.run {
                 self.player.physicsBody?.velocity.dy = 750
             }
             player.run(action)
 
-//        }
+        }
     }
     
     func createCaveNode(x: Int, y: Int, addToList: Bool) {
@@ -217,6 +255,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.categoryBitMask = 2
         node.name = "ground"
+        node.texture = SKTexture(imageNamed:"tile005")
+        node.texture!.filteringMode = .nearest
         node.position = CGPoint(x: 100 * x, y: 100 * y)
         self.addChild(node)
         if(addToList) {

@@ -1,0 +1,15 @@
+{
+  "originHash" : "a082fab040f6ed8bb3d800bb64a447e0667feb32d938de585595e5a9383a7925",
+  "pins" : [
+    {
+      "identity" : "joystick",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/Joystick.git",
+      "state" : {
+        "revision" : "c37e9596dc7756fae3d6720ab09e090a30b6179c",
+        "version" : "3.2.0"
+      }
+    }
+  ],
+  "version" : 3
+}
